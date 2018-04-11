@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'django.contrib.sites',
+    'django_comments',
+    'comment',
 ]
 
 REST_FRAMEWORK = {
@@ -133,3 +136,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+#django_comments settings
+
+COMMENTS_MAX_LENGTH=6000
+
+#django.contrib.sites setting
+SITE_ID=1

@@ -3,10 +3,11 @@ from rest_framework.views import APIView,status
 from django.core.exceptions import ObjectDoesNotExist
 
 from authentication.models import StudentModel
-from authentication.serializers import SignUpSerializer,SignInSerializer
+from authentication.serializers import SignUpSerializer,SignInSerializer, StudentModelSerializer
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets,mixins
 # Create your views here.
 
 
@@ -137,3 +138,9 @@ class CheckAdminLogin(APIView):
             if student.is_admin:
                 return Response({'error':False,'isAdmin':True,'message':'Admin Privileges Enabled','username':request.user.username})
         return Response({'error':False,'isAdmin':False,'message':'User Privileges Enabled','username':request.user.username})
+
+
+class StudentViewSet(viewsets.GenericViewSet,mixins.RetrieveModelMixin,mixins.ListModelMixin):
+    queryset = StudentModel.objects.all()
+    serializer_class = StudentModelSerializer
+    permission_classes = (IsAuthenticated,)

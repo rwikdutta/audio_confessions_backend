@@ -99,5 +99,15 @@ class SignInSerializer(serializers.Serializer):
     def create(self, validated_data):
         return User.objects.get(username=validated_data['username'])
 
+class StudentModelSerializer(serializers.HyperlinkedModelSerializer):
+    url=serializers.HyperlinkedIdentityField(view_name='studentmodel-detail')
+    username=serializers.CharField(source='user.username')
+    #TODO: Add Activity Here Once All The Other parts are completed (One to Many)
+
+    class Meta:
+        model=StudentModel
+        fields=('url','name','year','dept','passout_year','username')
+
+
 
 
