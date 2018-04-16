@@ -1,4 +1,7 @@
 import os
+from django.contrib.contenttypes.models import ContentType
+
+from likes.models import Likes
 from .models import Confessions
 import datetime
 from django.utils.timezone import utc
@@ -27,6 +30,22 @@ class ConfessionsSerializer(serializers.HyperlinkedModelSerializer):
     object_id=serializers.IntegerField(source='id')
     comments_url=serializers.SerializerMethodField(read_only=True)
     can_delete=serializers.SerializerMethodField(read_only=True)
+    self_like = serializers.SerializerMethodField(read_only=True)
+    all_likes=serializers.SerializerMethodField(read_only=True)
+
+    def get_all_likes(self,obj):
+        request=self.context['request']
+        return "{}?content_type__id={}&object_id={}".format(reverse('likesfilter', request=self.context['request']),obj.likes.content_type.id, obj.pk)
+
+    def get_self_like(self,obj):
+        request=self.context['request']
+        student = StudentModel.objects.get(user=request.user)
+        content_type_obj = ContentType.objects.get_for_model(obj)
+        try:
+            like=Likes.objects.get(student=student,content_type=content_type_obj,object_id=obj.id)
+        except ObjectDoesNotExist:
+            return None
+        return reverse('likes-detail',args=(like.id,),request=request)
 
     def get_username(self,obj):
         if not obj.is_anonymous:
@@ -35,6 +54,9 @@ class ConfessionsSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_can_delete(self,obj):
         request=self.context['request']
+        # The below condition is for testing purposes when i sometimes disable IsAuthenticated check to test it from within the browser
+        if not request.user.is_authenticated:
+            return False
         if obj.student.user.id==request.user.id:
             return True
         return False

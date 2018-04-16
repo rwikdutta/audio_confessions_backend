@@ -1,10 +1,13 @@
 from django.shortcuts import render
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from authentication.models import StudentModel
+from likes.models import Likes
+from likes.serializers import LikesSerializer
 from .models import Confessions
 from .serializers import ConfessionsSerializer,AddConfessionsSerializer
-from rest_framework import viewsets,mixins,views,status
+from rest_framework import viewsets, mixins, views, status, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import serializers
@@ -14,6 +17,8 @@ from django.core.exceptions import ObjectDoesNotExist
 class ConfessionsViewSet(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
 
     def destroy(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            raise serializers.ValidationError({'error': True, 'message': 'Not Authenticated'})
         try:
             student_id_of_confession=Confessions.objects.get(pk=kwargs['pk']).student.user.id
         except ObjectDoesNotExist:
@@ -52,3 +57,5 @@ class AddConfessionView(views.APIView):
             return Response({'error':False,'message':'Confession was added successfully!'})
         else:
             return Response({'error':True,'message':'Error Occured','error_fields':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+
+

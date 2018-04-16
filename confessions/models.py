@@ -2,6 +2,7 @@ from django.db import models
 from authentication.models import StudentModel
 from django.contrib.contenttypes.fields import GenericRelation
 from django_comments.models import Comment
+from likes.models import Likes
 
 
 # Create your models here.
@@ -17,6 +18,7 @@ class Confessions(models.Model):
     confession_clip_size=models.IntegerField(null=False)
     confession_clip_duration=models.IntegerField(null=False)
     comments=GenericRelation(Comment,related_query_name='confessions',related_name='confessions',object_id_field='object_pk')
+    likes=GenericRelation(Likes,related_name='likes',related_query_name='likes',object_id_field='object_id')
 
     def __str__(self):
         return "{}:{}".format(self.student.user.username,self.description)

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'comment',
     'confessions',
     'django_filters',
+    'likes',
 ]
 
 REST_FRAMEWORK = {

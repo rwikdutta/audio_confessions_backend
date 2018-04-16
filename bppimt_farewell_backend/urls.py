@@ -22,4 +22,5 @@ urlpatterns = [
     url(r'^authentication/',include('authentication.urls')),
     url(r'^comment/',include('comment.urls')),
     url(r'^confessions/',include('confessions.urls')),
+    url(r'^likes/',include('likes.urls')),
 ]
