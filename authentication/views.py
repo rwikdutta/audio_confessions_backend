@@ -139,7 +139,6 @@ class CheckAdminLogin(APIView):
                 return Response({'error':False,'isAdmin':True,'message':'Admin Privileges Enabled','username':request.user.username})
         return Response({'error':False,'isAdmin':False,'message':'User Privileges Enabled','username':request.user.username})
 
-
 class StudentViewSet(viewsets.GenericViewSet,mixins.RetrieveModelMixin,mixins.ListModelMixin):
     queryset = StudentModel.objects.all()
     serializer_class = StudentModelSerializer

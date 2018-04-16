@@ -4,6 +4,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 
+
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     url=serializers.HyperlinkedIdentityField(view_name='comment-detail')
     student_url=serializers.SerializerMethodField()

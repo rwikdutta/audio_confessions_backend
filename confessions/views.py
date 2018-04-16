@@ -1,0 +1,54 @@
+from django.shortcuts import render
+from rest_framework.parsers import MultiPartParser, FormParser
+
+from authentication.models import StudentModel
+from .models import Confessions
+from .serializers import ConfessionsSerializer,AddConfessionsSerializer
+from rest_framework import viewsets,mixins,views,status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import serializers
+from django.core.exceptions import ObjectDoesNotExist
+# Create your views here.
+
+class ConfessionsViewSet(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            student_id_of_confession=Confessions.objects.get(pk=kwargs['pk']).student.user.id
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError({'error':True,'message':'Deleted Object Does Not Exist'})
+        if request.user.id==student_id_of_confession:
+            return super().destroy(request, *args, **kwargs)
+        else:
+            raise serializers.ValidationError({'error':True,'message':'No Delete Permission'})
+
+    queryset = Confessions.objects.filter(is_approved=True)
+    serializer_class = ConfessionsSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class AddConfessionView(views.APIView):
+    """
+            Endpoint to Add a Confession
+
+            Header=<Needs authentication token>
+
+            Parameters:
+                datafile=<Audio clip>
+                description=xxxxxxxxx
+                is_anonymous=True/False
+        """
+    parser_classes = (MultiPartParser, FormParser,)
+    permission_classes = (IsAuthenticated,)
+
+
+    def post(self,request):
+        request_data=request.data.dict()
+        request_data['student_id']=StudentModel.objects.get(user=request.user).id
+        serializer=AddConfessionsSerializer(data=request_data,context=request)
+        if serializer.is_valid(raise_exception=False):
+            confession=serializer.save()
+            return Response({'error':False,'message':'Confession was added successfully!'})
+        else:
+            return Response({'error':True,'message':'Error Occured','error_fields':serializer.errors},status=status.HTTP_400_BAD_REQUEST)

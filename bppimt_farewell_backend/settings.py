@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django_comments',
     'comment',
+    'confessions',
+    'django_filters',
 ]
 
 REST_FRAMEWORK = {
@@ -143,3 +145,8 @@ COMMENTS_MAX_LENGTH=6000
 
 #django.contrib.sites setting
 SITE_ID=1
+
+#TODO: Add pagination support
+
+#File Uploader Type
+FILE_UPLOAD_HANDLERS = ("django.core.files.uploadhandler.TemporaryFileUploadHandler",)

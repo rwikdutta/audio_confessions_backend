@@ -29,4 +29,7 @@ class StudentModel(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)
     is_admin=models.BooleanField(default=False,null=False,blank=False)
 
+    def __str__(self):
+        return self.user.username
+
 
