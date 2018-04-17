@@ -1,6 +1,7 @@
 import os
 from django.contrib.contenttypes.models import ContentType
-
+from hashtags.serializers import TagSerializer
+from comment.serializers import CommentSerializer
 from likes.models import Likes
 from .models import Confessions
 import datetime
@@ -20,7 +21,6 @@ import math
 FILE_UPLOAD_DIR=get_local_uploaded_files_path()
 
 class ConfessionsSerializer(serializers.HyperlinkedModelSerializer):
-    #TODO: Add a field which specifies whether you can or cannot delete
     #student = serializers.HyperlinkedRelatedField(read_only=True, many=False, view_name='studentmodel-detail')
     student=serializers.SerializerMethodField(read_only=True)
     #username=serializers.CharField(source='student.user.username',read_only=True)
@@ -32,6 +32,25 @@ class ConfessionsSerializer(serializers.HyperlinkedModelSerializer):
     can_delete=serializers.SerializerMethodField(read_only=True)
     self_like = serializers.SerializerMethodField(read_only=True)
     all_likes=serializers.SerializerMethodField(read_only=True)
+    highlighted_comments=serializers.SerializerMethodField(read_only=True)
+    comments_count=serializers.SerializerMethodField(read_only=True)
+    likes_count=serializers.SerializerMethodField(read_only=True)
+    tags=serializers.SerializerMethodField(read_only=True)
+
+    def get_tags(self,obj):
+        request = self.context['request']
+        return TagSerializer(obj.tags.all(),context={'request': request},many=True).data
+
+    def get_likes_count(self,obj):
+        return obj.likes.count()
+
+    def get_comments_count(self,obj):
+        return obj.comments.count()
+
+    def get_highlighted_comments(self,obj):
+        request = self.context['request']
+        comments=obj.comments.order_by('-id')[0:2]
+        return CommentSerializer(comments,context={'request': request},many=True).data
 
     def get_all_likes(self,obj):
         request=self.context['request']
@@ -88,6 +107,7 @@ class AddConfessionsSerializer(serializers.Serializer):
     datafile=serializers.FileField()
     description=serializers.CharField(max_length=256,allow_null=True,allow_blank=True)
     is_anonymous=serializers.BooleanField(default=False)
+    tags=serializers.CharField(max_length=2048,allow_null=True,allow_blank=True)
 
     def validate(self, attrs):
         try:
@@ -128,4 +148,7 @@ class AddConfessionsSerializer(serializers.Serializer):
             raise exceptions.ValidationError({'confession_clip_url':'Failed To Save Confession Clip...Try Again'})
         y, sr = librosa.load(resp['new_file_path'])
         confession_clip_duration=librosa.get_duration(y=y,sr=sr)
-        return Confessions.objects.create(student_id=validated_data['student_id'],description=validated_data['description'],confession_clip_url=resp['file_url'],confession_clip_size=resp['file_size'],confession_clip_duration=math.ceil(confession_clip_duration))
+        confession=Confessions.objects.create(student_id=validated_data['student_id'],description=validated_data['description'],confession_clip_url=resp['file_url'],confession_clip_size=resp['file_size'],confession_clip_duration=math.ceil(confession_clip_duration))
+        tags_arr=validated_data['tags'].split(',')
+        confession.tags.add(*tags_arr)
+        return confession

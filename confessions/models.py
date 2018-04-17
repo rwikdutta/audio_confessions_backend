@@ -3,7 +3,7 @@ from authentication.models import StudentModel
 from django.contrib.contenttypes.fields import GenericRelation
 from django_comments.models import Comment
 from likes.models import Likes
-
+from taggit.managers import TaggableManager
 
 # Create your models here.
 
@@ -19,6 +19,7 @@ class Confessions(models.Model):
     confession_clip_duration=models.IntegerField(null=False)
     comments=GenericRelation(Comment,related_query_name='confessions',related_name='confessions',object_id_field='object_pk')
     likes=GenericRelation(Likes,related_name='likes',related_query_name='likes',object_id_field='object_id')
+    tags=TaggableManager()
 
     def __str__(self):
         return "{}:{}".format(self.student.user.username,self.description)

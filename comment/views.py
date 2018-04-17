@@ -13,16 +13,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import utc
 from rest_framework.parsers import MultiPartParser,FormParser
 
-
 # Create your views here.
 
 #TODO: Remove ListModelMixin from CommentView since it doesn't seem fair that all of the comments can be accessed by anyone at one single go...
-#TODO: Custom define the method for DestroyModelMixin since there needs to be a permission check
 class CommentView(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
 
     queryset = Comment.objects.filter(is_public=True,is_removed=False)
-    #TODO: Remove the comment from the permission_class
-    #permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = CommentSerializer
 
     def destroy(self, request, *args, **kwargs):
@@ -42,7 +39,6 @@ class CommentFilterView(generics.ListAPIView):
     filter_fields=('content_type__id','object_pk')
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticated,)
-
 
 
 class AddCommentView(views.APIView):

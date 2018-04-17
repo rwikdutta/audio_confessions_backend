@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^comment/',include('comment.urls')),
     url(r'^confessions/',include('confessions.urls')),
     url(r'^likes/',include('likes.urls')),
+    url(r'^tags/',include('hashtags.urls')),
 ]

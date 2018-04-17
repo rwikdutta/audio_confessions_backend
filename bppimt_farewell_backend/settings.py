@@ -48,12 +48,15 @@ INSTALLED_APPS = [
     'confessions',
     'django_filters',
     'likes',
+    'taggit',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-    )
+    ),
+    'DEFAULT_PAGINATION_CLASS':'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE':20,
 }
 
 
@@ -154,3 +157,6 @@ SITE_ID=1
 
 #File Uploader Type
 FILE_UPLOAD_HANDLERS = ("django.core.files.uploadhandler.TemporaryFileUploadHandler",)
+
+#Django Taggit Settings
+TAGGIT_CASE_INSENSITIVE=True
