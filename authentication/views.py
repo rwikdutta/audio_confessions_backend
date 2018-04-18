@@ -35,7 +35,7 @@ class SignUp(APIView):
         serializer=SignUpSerializer(data=data_dict)
         if serializer.is_valid():
             obj=serializer.save()
-            read_serializer=SignUpSerializer(obj,context={'request':request})
+            read_serializer=StudentModelSerializer(obj,context={'request':request})
             token=Token.objects.create(user=obj.user)
             #TODO: Add student.id in the response
             return Response({'error':False,'message':'User created successfully!','token':token.key,'object':read_serializer.data})
@@ -71,7 +71,7 @@ class SignIn(APIView):
                 token=Token.objects.get(user=user)
             except ObjectDoesNotExist:
                 token=Token.objects.create(user=user)
-            return Response({'error':False,'message':'Signed In Successfully','token':token.key,'object':read_serializer})
+            return Response({'error':False,'message':'Signed In Successfully','token':token.key,'object':read_serializer.data})
         else:
             return Response({'error':True,'message':'Error Occured','error_fields':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
 
@@ -115,7 +115,9 @@ class CheckLogin(APIView):
 
     def get(self,request):
         if request.user.is_authenticated:
-            return Response({'error':False,'isAuthenticated':True,'message':'Logged in as {}'.format(request.user.username),'username':request.user.username})
+            student=StudentModel.objects.get(user=request.user)
+            read_serializer=StudentModelSerializer(student,context={'request':request})
+            return Response({'error':False,'isAuthenticated':True,'message':'Logged in as {}'.format(request.user.username),'username':request.user.username,'object':read_serializer.data})
         else:
             return Response({'error': False,'isAuthenticated':False, 'message': 'Not Logged In'})
 
