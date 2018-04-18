@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'django_filters',
     'likes',
     'taggit',
+    'hashtags',
+    'ask',
 ]
 
 REST_FRAMEWORK = {

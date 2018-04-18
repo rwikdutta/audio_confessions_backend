@@ -54,8 +54,10 @@ class AddConfessionView(views.APIView):
         serializer=AddConfessionsSerializer(data=request_data,context=request)
         if serializer.is_valid(raise_exception=False):
             confession=serializer.save()
-            return Response({'error':False,'message':'Confession was added successfully!'})
+            read_serializer=ConfessionsSerializer(confession,context={'request':request})
+            return Response({'error':False,'message':'Confession was added successfully!','object':read_serializer.data})
         else:
             return Response({'error':True,'message':'Error Occured','error_fields':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+
 
 

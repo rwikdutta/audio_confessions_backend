@@ -18,7 +18,7 @@ class Confessions(models.Model):
     confession_clip_size=models.IntegerField(null=False)
     confession_clip_duration=models.IntegerField(null=False)
     comments=GenericRelation(Comment,related_query_name='confessions',related_name='confessions',object_id_field='object_pk')
-    likes=GenericRelation(Likes,related_name='likes',related_query_name='likes',object_id_field='object_id')
+    likes=GenericRelation(Likes,related_name='confessions',related_query_name='confessions',object_id_field='object_id')
     tags=TaggableManager()
 
     def __str__(self):

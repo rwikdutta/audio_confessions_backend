@@ -55,6 +55,8 @@ class AddLikesView(APIView):
         request_data['student_id']=StudentModel.objects.get(user=request.user).id
         serializer=AddLikesSerializer(data=request_data)
         if serializer.is_valid(raise_exception=False):
-            return Response({'error':False,'message':'Like Updated Successfully'})
+            obj=serializer.save()
+            read_serializer=LikesSerializer(obj,context={'request':request})
+            return Response({'error':False,'message':'Like Updated Successfully','object':read_serializer.data})
         else:
             return Response({'error':True,'message':'Some Error Occurred While Updating Like','error_fields':serializer.errors},status=status.HTTP_400_BAD_REQUEST)

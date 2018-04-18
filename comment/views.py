@@ -42,6 +42,7 @@ class CommentFilterView(generics.ListAPIView):
 
 
 class AddCommentView(views.APIView):
+    permission_classes = (IsAuthenticated,)
     """
 
         Endpoint to Add a Confession
@@ -61,9 +62,11 @@ class AddCommentView(views.APIView):
         serializer=AddCommentSerializer(data=request_data)
         if serializer.is_valid(raise_exception=False):
             comment_obj=serializer.save()
-            return Response({'error':False,'message':'Comment Added Successfully'})
+            read_serializer=CommentSerializer(comment_obj,context={'request':request})
+            return Response({'error':False,'message':'Comment Added Successfully','object':read_serializer.data})
         else:
             return Response({'error':True,'message':'Error Occurred','error_fields':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
