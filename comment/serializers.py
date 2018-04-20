@@ -13,6 +13,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='comment-detail')
     student_url = serializers.SerializerMethodField(read_only=True)
     can_delete = serializers.SerializerMethodField(read_only=True)
+    username=serializers.CharField(source='user.username',read_only=True)
     # TODO: Add a similar url for content-type after ensuring that all the content types have their corresponding views
 
     def get_can_delete(self, obj):
@@ -28,9 +29,10 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
         student = StudentModel.objects.get(user=obj.user)
         return reverse('studentmodel-detail', args=[student.id], request=self.context['request'])
 
+
     class Meta:
         model = Comment
-        fields = ('url', 'object_pk','comment', 'submit_date','student_url', 'can_delete', 'content_type_id',)
+        fields = ('url', 'object_pk','comment', 'submit_date','student_url', 'can_delete', 'content_type_id','username')
 
 
 class AddCommentSerializer(serializers.Serializer):
