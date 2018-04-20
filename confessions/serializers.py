@@ -135,7 +135,7 @@ class AddConfessionsSerializer(serializers.Serializer):
         copyfile(temp_file_path,new_file_path)
         #TODO: Make proper naming conventions for file upload...make sure that whatever name you allow doesnt adversely affect any of the sql queries i.e. the values that you choose doesnt have any special meaning in sql query
         s3_file_name="{}/{}".format(aws_folder,file_name)
-        resp=s3.Object(s3_bucket_name,s3_file_name).put(Body=open(new_file_path,'rb'))
+        resp=s3.Object(s3_bucket_name,s3_file_name).put(Body=open(new_file_path,'rb'), ACL='public-read')
         if resp['ResponseMetadata']['HTTPStatusCode']==200:
             return {'uploaded':True,'file_url':r"https://s3.{}.amazonaws.com/{}/{}/{}".format(aws_region,s3_bucket_name,aws_folder,file_name),'file_name':file_name,'uploaded_at':uploaded_at,'file_size':datafile.size,'new_file_path':new_file_path,'file_type':CONFESSION_FILE_EXTENSION}
         else:
@@ -148,7 +148,7 @@ class AddConfessionsSerializer(serializers.Serializer):
             raise exceptions.ValidationError({'confession_clip_url':'Failed To Save Confession Clip...Try Again'})
         y, sr = librosa.load(resp['new_file_path'])
         confession_clip_duration=librosa.get_duration(y=y,sr=sr)
-        confession=Confessions.objects.create(student_id=validated_data['student_id'],description=validated_data['description'],confession_clip_url=resp['file_url'],confession_clip_size=resp['file_size'],confession_clip_duration=math.ceil(confession_clip_duration))
+        confession=Confessions.objects.create(student_id=validated_data['student_id'],description=validated_data['description'],confession_clip_url=resp['file_url'],confession_clip_size=resp['file_size'],confession_clip_duration=math.ceil(confession_clip_duration),is_anonymous=validated_data['is_anonymous'])
         tags_arr=validated_data['tags'].split(',')
         confession.tags.add(*tags_arr)
         return confession
