@@ -13,7 +13,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 class AskViewSet(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
     def destroy(self, request, *args, **kwargs):
         try:
-            ask_obj=Ask.objects.get(id=id)
+            ask_obj=Ask.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             raise serializers.ValidationError({'error':True,'message':'Invalid Object'})
         if ask_obj.from_student.user.id==request.user.id:
