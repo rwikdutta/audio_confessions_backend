@@ -1,10 +1,12 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core import exceptions
 from rest_framework.authtoken.models import Token
 from .models import StudentModel
 import  django.contrib.auth.password_validation as validators
+
 
 class SignUpSerializer(serializers.Serializer):
 
@@ -102,11 +104,22 @@ class SignInSerializer(serializers.Serializer):
 class StudentModelSerializer(serializers.HyperlinkedModelSerializer):
     url=serializers.HyperlinkedIdentityField(view_name='studentmodel-detail')
     username=serializers.CharField(source='user.username')
-    #TODO: Add Activity Here Once All The Other parts are completed (One to Many)
+    user_confessions=serializers.SerializerMethodField(read_only=True)
+    user_asks_from=serializers.SerializerMethodField(read_only=True)
+    user_asks_to = serializers.SerializerMethodField(read_only=True)
+
+    def get_user_asks_from(self,obj):
+        return "{}?{}={}".format(reverse('fromstudentfilter', request=self.context['request']), 'from_student__id',obj.id)
+
+    def get_user_asks_to(self, obj):
+        return "{}?{}={}".format(reverse('tostudentfilter', request=self.context['request']), 'to_student__id',obj.id)
+
+    def get_user_confessions(self,obj):
+        return "{}?{}={}".format(reverse('confessionstudentfilter',request=self.context['request']),'student__id',obj.id)
 
     class Meta:
         model=StudentModel
-        fields=('url','name','year','dept','passout_year','username','id')
+        fields=('url','name','year','dept','passout_year','username','id','user_confessions','user_asks_from','user_asks_to')
 
 
 

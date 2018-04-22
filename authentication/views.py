@@ -10,7 +10,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets,mixins
 # Create your views here.
 
-
 class SignUp(APIView):
     """
     Request Type: POST
@@ -149,3 +148,6 @@ class StudentViewSet(viewsets.GenericViewSet,mixins.RetrieveModelMixin,mixins.Li
     queryset = StudentModel.objects.all()
     serializer_class = StudentModelSerializer
     permission_classes = (IsAuthenticated,)
+
+
+

@@ -59,5 +59,11 @@ class AddConfessionView(views.APIView):
         else:
             return Response({'error':True,'message':'Error Occured','error_fields':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
 
+class ConfessionStudentFilterView(generics.ListAPIView):
+    queryset = Confessions.objects.filter(is_anonymous=False).order_by('-id')
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('student__id',)
+    serializer_class = ConfessionsSerializer
+    permission_classes = (IsAuthenticated,)
 
 

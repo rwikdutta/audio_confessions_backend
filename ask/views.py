@@ -1,11 +1,12 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from rest_framework.response import Response
-from rest_framework import mixins,viewsets,views,status,serializers
+from rest_framework import mixins,viewsets,views,status,serializers,generics
 from .models import Ask
 from .serializers import AskSerializer,AnswerAskSerializer,AddAskSerializer
 from rest_framework.permissions import IsAuthenticated
 from authentication.models import StudentModel
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Create your views here.
 
@@ -48,4 +49,20 @@ class AddAskView(views.APIView):
             return Response({'error':False,'message':'Ask added successfully!','object':read_serializer.data})
         else:
             return Response({'error':True,'message':'Some error occured','error_fields':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+
+class FromStudentAskFilterView(generics.ListAPIView):
+    queryset = Ask.objects.filter(is_anonymous=False).order_by('-id')
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('from_student__id',)
+    serializer_class = AskSerializer
+    permission_classes = (IsAuthenticated,)
+
+class ToStudentAskFilterView(generics.ListAPIView):
+    queryset = Ask.objects.order_by('-id')
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('to_student__id',)
+    serializer_class = AskSerializer
+    permission_classes = (IsAuthenticated,)
+
+
 
