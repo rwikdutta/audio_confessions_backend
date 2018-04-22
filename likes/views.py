@@ -16,7 +16,7 @@ from .serializers import LikesSerializer,AddLikesSerializer
 
 class LikesViewSet(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
 
-    queryset = Likes.objects.all()
+    queryset = Likes.objects.order_by('-id')
     serializer_class = LikesSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -32,7 +32,7 @@ class LikesViewSet(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.Retrieve
         return super().destroy(request, *args, **kwargs)
 
 class LikesFilterView(generics.ListAPIView):
-    queryset = Likes.objects.all()
+    queryset = Likes.objects.order_by('-id')
     filter_backends = (DjangoFilterBackend,)
     filter_fields=('content_type__id','object_id')
     serializer_class = LikesSerializer

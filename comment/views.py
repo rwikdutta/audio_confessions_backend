@@ -18,7 +18,7 @@ from rest_framework.parsers import MultiPartParser,FormParser
 #TODO: Remove ListModelMixin from CommentView since it doesn't seem fair that all of the comments can be accessed by anyone at one single go...
 class CommentView(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
 
-    queryset = Comment.objects.filter(is_public=True,is_removed=False)
+    queryset = Comment.objects.filter(is_public=True,is_removed=False).order_by('-id')
     permission_classes = (IsAuthenticated,)
     serializer_class = CommentSerializer
 
@@ -34,7 +34,7 @@ class CommentView(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveM
         return super().destroy(request, *args, **kwargs)
 
 class CommentFilterView(generics.ListAPIView):
-    queryset = Comment.objects.filter(is_public=True,is_removed=False)
+    queryset = Comment.objects.filter(is_public=True,is_removed=False).order_by('-id')
     filter_backends = (DjangoFilterBackend,)
     filter_fields=('content_type__id','object_pk')
     serializer_class = CommentSerializer

@@ -20,7 +20,7 @@ class AskViewSet(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveMo
             return super().destroy(request, *args, **kwargs)
         raise serializers.ValidationError({'error':True,'message':'No Permission to Delete'})
 
-    queryset = Ask.objects.all()
+    queryset = Ask.objects.order_by('-id')
     serializer_class = AskSerializer
     permission_classes = (IsAuthenticated,)
 

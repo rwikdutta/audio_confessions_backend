@@ -28,7 +28,7 @@ class ConfessionsViewSet(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.Re
         else:
             raise serializers.ValidationError({'error':True,'message':'No Delete Permission'})
 
-    queryset = Confessions.objects.filter(is_approved=True)
+    queryset = Confessions.objects.filter(is_approved=True).order_by('-id')
     serializer_class = ConfessionsSerializer
     permission_classes = (IsAuthenticated,)
 
