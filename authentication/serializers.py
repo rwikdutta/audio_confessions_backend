@@ -1,9 +1,16 @@
+import datetime
+from shutil import copyfile
+from PIL import Image
+from resizeimage import resizeimage
+import boto3
+from django.utils.timezone import utc
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core import exceptions
 from rest_framework.authtoken.models import Token
+from bppimt_farewell_backend.constants import get_local_uploaded_files_path,ACCEPTED_PROFILE_PICTURE_TYPES
 from .models import StudentModel
 import  django.contrib.auth.password_validation as validators
 
@@ -17,6 +24,7 @@ class SignUpSerializer(serializers.Serializer):
     username=serializers.CharField(max_length=128,allow_null=False)
     password=serializers.CharField(max_length=128,allow_null=False)
     email=serializers.EmailField(allow_null=False)
+
 
     def validate_dept(self,value):
         if value in {'CSE','ECE','IT','MCA','EE'}:
@@ -65,6 +73,9 @@ class SignUpSerializer(serializers.Serializer):
         if errors:
             raise serializers.ValidationError(errors)
         return attrs
+
+
+
 
     def create(self, validated_data):
         user=User.objects.create_user(validated_data['username'],validated_data['email'],validated_data['password'])
@@ -119,8 +130,64 @@ class StudentModelSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model=StudentModel
-        fields=('url','name','year','dept','passout_year','username','id','user_confessions','user_asks_from','user_asks_to')
+        fields=('url','name','year','dept','passout_year','username','id','user_confessions','user_asks_from','user_asks_to','profile_picture_small_url','profile_picture_large_url',)
 
+class UpdateProfilePictureSerializer(serializers.Serializer):
+    profile_picture=serializers.FileField(allow_empty_file=False,allow_null=False)
 
+    def validate_profile_picture(self,value):
+        path=value.temporary_file_path()
+        if path[path.rfind('.'):] in ACCEPTED_PROFILE_PICTURE_TYPES:
+            return value
+        raise serializers.ValidationError({'Accepted file types are .jpg,.jpeg and .png'})
+
+    def upload_profile_picture_to_s3(self, file_path, student_id):
+        FILE_UPLOAD_DIR = get_local_uploaded_files_path()
+        aws_region = 'ap-south-1'
+        aws_folder = 'v1'
+        s3_bucket_name = 'bpp-user-files'
+        # s3_bucket_name=aws_bucket
+        # aws_access_key=os.environ.get('SIH_S3_ACCESS_KEY')
+        # aws_secret_key=os.environ.get('SIH_S3_SECRET_ACCESS_KEY')
+        # TODO: Make aws_region an environment variable
+        # TODO: Understand how the permissions are being set up since aws_access_key and aws_secret_key are not being used here...because aws-cli is already set up
+        uploaded_at = datetime.datetime.utcnow().replace(tzinfo=utc)
+        s3 = boto3.resource('s3')
+        temp_file_path = file_path
+        extension = temp_file_path[temp_file_path.rfind('.'):]
+        file_name = "{}_{}_{}{}".format('dp', student_id, uploaded_at.strftime('%Y%m%d%H%M%S'), extension)
+        new_file_path = FILE_UPLOAD_DIR + file_name
+        copyfile(temp_file_path, new_file_path)
+        cover_name_512_512 = "{}_{}_512_{}{}".format('dp', student_id, uploaded_at.strftime('%Y%m%d%H%M%S'),extension)
+        cover_name_96_96 = "{}_{}_96_{}{}".format('dp', student_id, uploaded_at.strftime('%Y%m%d%H%M%S'), extension)
+        file_path_96 = FILE_UPLOAD_DIR + cover_name_96_96
+        file_path_512 = FILE_UPLOAD_DIR + cover_name_512_512
+        with open(new_file_path, 'r+b') as f:
+            with Image.open(f) as image:
+                if image.height < 512 or image.width < 512:
+                    raise serializers.ValidationError({"profile_picture": "Images should be atleast 512*512"})
+                cover = resizeimage.resize_cover(image, [512, 512])
+                cover.save(file_path_512)
+                cover_small = resizeimage.resize_cover(image, [96, 96])
+                cover_small.save(file_path_96)
+        # TODO: Make proper naming conventions for file upload...make sure that whatever name you allow doesnt adversely affect any of the sql queries i.e. the values that you choose doesnt have any special meaning in sql query
+        s3_file_name_large = "{}/{}".format(aws_folder, cover_name_512_512)
+        s3_file_name_small = "{}/{}".format(aws_folder, cover_name_96_96)
+        resp_large = s3.Object(s3_bucket_name, s3_file_name_large).put(Body=open(file_path_512, 'rb'),ACL='public-read')
+        if resp_large['ResponseMetadata']['HTTPStatusCode'] == 200:
+            resp_small = s3.Object(s3_bucket_name, s3_file_name_small).put(Body=open(file_path_96, 'rb'),ACL='public-read')
+            if resp_small['ResponseMetadata']['HTTPStatusCode'] == 200:
+                return {'uploaded': True,'file_url_large': r"https://s3.{}.amazonaws.com/{}/{}/{}".format(aws_region, s3_bucket_name,aws_folder, cover_name_512_512),'file_url_small': r"https://s3.{}.amazonaws.com/{}/{}/{}".format(aws_region, s3_bucket_name,aws_folder, cover_name_96_96),'file_type': extension}
+        raise serializers.ValidationError({'profile_picture': 'Couldnt Update Profile Picture'})
+
+    def create(self, validated_data):
+        temp_path=validated_data['profile_picture'].temporary_file_path()
+        request=self.context['request']
+        student=StudentModel.objects.get(user=request.user)
+        resp=self.upload_profile_picture_to_s3(temp_path,student.id)
+        student.profile_picture_large_url=resp['file_url_large']
+        student.profile_picture_small_url=resp['file_url_small']
+        student.save()
+        return student
 
 

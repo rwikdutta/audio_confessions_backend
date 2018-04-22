@@ -28,6 +28,10 @@ class StudentModel(models.Model):
     ),blank=False,null=False)
     user=models.OneToOneField(User,on_delete=models.CASCADE)
     is_admin=models.BooleanField(default=False,null=False,blank=False)
+    profile_picture_large_url=models.URLField(null=True,blank=True)
+    profile_picture_small_url = models.URLField(null=True, blank=True)
+    created_at=models.DateTimeField(auto_now_add=True)
+    modified_at=models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.username

@@ -1,13 +1,16 @@
 from django.shortcuts import render
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView,status
 from django.core.exceptions import ObjectDoesNotExist
 
 from authentication.models import StudentModel
-from authentication.serializers import SignUpSerializer,SignInSerializer, StudentModelSerializer
+from authentication.serializers import SignUpSerializer,SignInSerializer, StudentModelSerializer,UpdateProfilePictureSerializer
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets,mixins
+from rest_framework import viewsets, mixins, generics
+
+
 # Create your views here.
 
 class SignUp(APIView):
@@ -149,5 +152,23 @@ class StudentViewSet(viewsets.GenericViewSet,mixins.RetrieveModelMixin,mixins.Li
     serializer_class = StudentModelSerializer
     permission_classes = (IsAuthenticated,)
 
+class StudentDiscoverFilterView(generics.ListAPIView):
+    queryset = StudentModel.objects.order_by('-id')
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields=('year','dept',)
+    serializer_class = StudentModelSerializer
+    permission_classes = (IsAuthenticated,)
 
+class UpdateProfilePictureView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self,request):
+        data=request.data.dict()
+        serializer=UpdateProfilePictureSerializer(data=data,context={'request':request})
+        if serializer.is_valid(raise_exception=False):
+            student=serializer.save()
+            read_serializer=StudentModelSerializer(student,context={'request':request})
+            return Response({'error':False,'message':'Profile Picture Updated Successfully','object':read_serializer.data})
+        else:
+            return Response({'error': True, 'message': 'Some Error Occured', 'error_fields': serializer.errors})
 
