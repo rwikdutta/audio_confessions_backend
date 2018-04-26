@@ -20,8 +20,8 @@ class AskSerializer(serializers.HyperlinkedModelSerializer):
     self_like=serializers.SerializerMethodField(read_only=True)
     all_likes=serializers.SerializerMethodField(read_only=True)
     highlighted_comments=serializers.SerializerMethodField(read_only=True)
-    likes_count=serializers.SerializerMethodField(read_only=True)
-    comments_count=serializers.SerializerMethodField(read_only=True)
+    #likes_count=serializers.SerializerMethodField(read_only=True)
+    #comments_count=serializers.SerializerMethodField(read_only=True)
     tags = serializers.SerializerMethodField(read_only=True)
     can_answer=serializers.SerializerMethodField(read_only=True)
     all_comments=serializers.SerializerMethodField(read_only=True)
@@ -69,11 +69,11 @@ class AskSerializer(serializers.HyperlinkedModelSerializer):
         comments = obj.comments.order_by('-id')[0:2]
         return CommentSerializer(comments, context={'request': request}, many=True).data
 
-    def get_likes_count(self,obj):
-        return obj.likes.count()
+    # def get_likes_count(self,obj):
+    #     return obj.likes.count()
 
-    def get_comments_count(self,obj):
-        return obj.comments.count()
+    # def get_comments_count(self,obj):
+    #     return obj.comments.count()
 
     def get_tags(self,obj):
         request = self.context['request']
@@ -129,7 +129,7 @@ class AddAskSerializer(serializers.Serializer):
     def create(self, validated_data):
         request=self.context['request']
         from_student=StudentModel.objects.get(user=request.user)
-        tags_arr=validated_data['tags'].split(',')
+        tags_arr=validated_data['tags'].lower().split(',')
         obj=Ask.objects.create(question=validated_data['question'],is_anonymous=validated_data['is_anonymous'],from_student=from_student,to_student_id=validated_data['to_student_id'])
         obj.tags.add(*tags_arr)
         return obj

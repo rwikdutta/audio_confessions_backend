@@ -13,7 +13,11 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+#import raven
+#from raven.contrib.django.raven_compat.models import client
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ #from celery.schedules import crontab
 
 
 # Quick-start development settings - unsuitable for production
@@ -43,14 +47,16 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django.contrib.sites',
-    'django_comments',
-    'comment',
     'confessions',
     'django_filters',
-    'likes',
+    'likes.apps.LikesConfig',
     'taggit',
-    'hashtags',
     'ask',
+    #'raven.contrib.django.raven_compat',
+    #'django_celery_beat',
+    'django_comments',
+    'comment.apps.CommentConfig',
+    'hashtags.apps.HashtagsConfig',
 ]
 
 REST_FRAMEWORK = {
@@ -162,3 +168,41 @@ FILE_UPLOAD_HANDLERS = ("django.core.files.uploadhandler.TemporaryFileUploadHand
 
 #Django Taggit Settings
 TAGGIT_CASE_INSENSITIVE=True
+
+#Sentry Settings
+# RAVEN_CONFIG = {
+#     'dsn': 'https://9aaaa4d5623142ec8142fc45c21febc3:f9f3e78bd14244df8dc214d7ebab11d0@sentry.io/1194034',
+#     # If you are using git, you can also automatically configure the
+#     # release based on the git info.
+#     'release': 'v1',
+# }
+#client.captureException()
+
+#Celery Settings
+#CELERY_BROKER_URL = 'redis://localhost:6379'
+#CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+#CELERY_ACCEPT_CONTENT = ['application/json']
+#CELERY_RESULT_SERIALIZER = 'json'
+#CELERY_TASK_SERIALIZER = 'json'
+#CELERY_TIMEZONE='UTC'
+
+
+#Logging
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': BASE_DIR+'/logs/log.txt',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }

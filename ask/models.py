@@ -19,6 +19,8 @@ class Ask(models.Model):
     comments = GenericRelation(Comment, related_query_name='asks', related_name='asks',object_id_field='object_pk')
     likes = GenericRelation(Likes, related_name='asks', related_query_name='asks', object_id_field='object_id')
     tags = TaggableManager()
+    likes_count=models.IntegerField(default=0)
+    comments_count=models.IntegerField(default=0)
 
     def __str__(self):
         return "Q from {}:{} , A by {}:{}".format(self.from_student.user.username,self.question,self.to_student.user.username,self.answer)

@@ -12,7 +12,9 @@ from rest_framework.serializers import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import utc
 from rest_framework.parsers import MultiPartParser,FormParser
+import logging
 
+logger=logging.getLogger(__name__)
 # Create your views here.
 
 #TODO: Remove ListModelMixin from CommentView since it doesn't seem fair that all of the comments can be accessed by anyone at one single go...
@@ -57,6 +59,7 @@ class AddCommentView(views.APIView):
 
     #TODO: Add checks to ensure that only the allowable models have comments attached to them ( once the full application is built)
     def post(self,request):
+        #logger.error('Phew...it is working!!!')
         request_data=request.data.dict()
         request_data['user_id']=request.user.id
         serializer=AddCommentSerializer(data=request_data)

@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import F
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import mixins,viewsets,views,status,serializers,generics
@@ -63,6 +64,12 @@ class ToStudentAskFilterView(generics.ListAPIView):
     filter_fields = ('to_student__id',)
     serializer_class = AskSerializer
     permission_classes = (IsAuthenticated,)
+
+class OrderedAskViewSet(viewsets.GenericViewSet,mixins.ListModelMixin):
+    queryset = Ask.objects.order_by((F('likes_count')+F('comments_count')).desc(),'-id')
+    serializer_class = AskSerializer
+    permission_classes = (IsAuthenticated,)
+
 
 
 

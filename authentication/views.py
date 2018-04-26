@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.views import APIView,status
+from rest_framework.views import APIView, status
 from django.core.exceptions import ObjectDoesNotExist
 
 from authentication.models import StudentModel
-from authentication.serializers import SignUpSerializer,SignInSerializer, StudentModelSerializer,UpdateProfilePictureSerializer
+from authentication.serializers import SignUpSerializer, SignInSerializer, StudentModelSerializer, \
+    UpdateProfilePictureSerializer
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
@@ -32,17 +33,20 @@ class SignUp(APIView):
         error_fields=<describes parameter wise, the errors obtained>
     """
 
-    def post(self,request):
-        data_dict=request.data.dict()
-        serializer=SignUpSerializer(data=data_dict)
+    def post(self, request):
+        data_dict = request.data.dict()
+        serializer = SignUpSerializer(data=data_dict)
         if serializer.is_valid():
-            obj=serializer.save()
-            read_serializer=StudentModelSerializer(obj,context={'request':request})
-            token=Token.objects.create(user=obj.user)
-            #TODO: Add student.id in the response
-            return Response({'error':False,'message':'User created successfully!','token':token.key,'object':read_serializer.data})
+            obj = serializer.save()
+            read_serializer = StudentModelSerializer(obj, context={'request': request})
+            token = Token.objects.create(user=obj.user)
+            # TODO: Add student.id in the response
+            return Response({'error': False, 'message': 'User created successfully!', 'token': token.key,
+                             'object': read_serializer.data})
         else:
-            return Response({'error':True,'error_fields':serializer.errors,'message':'Error Occured!'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': True, 'error_fields': serializer.errors, 'message': 'Error Occured!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
 
 class SignIn(APIView):
     """
@@ -62,20 +66,24 @@ class SignIn(APIView):
             message=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             error_fields=<describes parameter wise, the errors obtained>
         """
-    def post(self,request):
-        data=request.data.dict()
-        serializer=SignInSerializer(data=data)
+
+    def post(self, request):
+        data = request.data.dict()
+        serializer = SignInSerializer(data=data)
         if serializer.is_valid():
-            user=serializer.save()
-            student_model=StudentModel.objects.get(user=user)
-            read_serializer=StudentModelSerializer(student_model,context={'request':request})
+            user = serializer.save()
+            student_model = StudentModel.objects.get(user=user)
+            read_serializer = StudentModelSerializer(student_model, context={'request': request})
             try:
-                token=Token.objects.get(user=user)
+                token = Token.objects.get(user=user)
             except ObjectDoesNotExist:
-                token=Token.objects.create(user=user)
-            return Response({'error':False,'message':'Signed In Successfully','token':token.key,'object':read_serializer.data})
+                token = Token.objects.create(user=user)
+            return Response({'error': False, 'message': 'Signed In Successfully', 'token': token.key,
+                             'object': read_serializer.data})
         else:
-            return Response({'error':True,'message':'Error Occured','error_fields':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': True, 'message': 'Error Occured', 'error_fields': serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)
+
 
 class SignOut(APIView):
     """
@@ -93,11 +101,12 @@ class SignOut(APIView):
     """
     permission_classes = (IsAuthenticated,)
 
-    def get(self,request):
-        user=request.user
-        token=Token.objects.get(user=user)
+    def get(self, request):
+        user = request.user
+        token = Token.objects.get(user=user)
         token.delete()
-        return Response({'error':False,'message':'Logged out successfully!'})
+        return Response({'error': False, 'message': 'Logged out successfully!'})
+
 
 class CheckLogin(APIView):
     """
@@ -115,13 +124,16 @@ class CheckLogin(APIView):
         Message=xxxxxxxxxxxxxxxxxxxxx
         """
 
-    def get(self,request):
+    def get(self, request):
         if request.user.is_authenticated:
-            student=StudentModel.objects.get(user=request.user)
-            read_serializer=StudentModelSerializer(student,context={'request':request})
-            return Response({'error':False,'isAuthenticated':True,'message':'Logged in as {}'.format(request.user.username),'username':request.user.username,'object':read_serializer.data})
+            student = StudentModel.objects.get(user=request.user)
+            read_serializer = StudentModelSerializer(student, context={'request': request})
+            return Response(
+                {'error': False, 'isAuthenticated': True, 'message': 'Logged in as {}'.format(request.user.username),
+                 'username': request.user.username, 'object': read_serializer.data})
         else:
-            return Response({'error': False,'isAuthenticated':False, 'message': 'Not Logged In'})
+            return Response({'error': False, 'isAuthenticated': False, 'message': 'Not Logged In'})
+
 
 class CheckAdminLogin(APIView):
     """
@@ -140,35 +152,40 @@ class CheckAdminLogin(APIView):
     """
     permission_classes = (IsAuthenticated,)
 
-    def get(self,request):
+    def get(self, request):
         if request.user.is_authenticated:
             student = StudentModel.objects.get(user=request.user)
             if student.is_admin:
-                return Response({'error':False,'isAdmin':True,'message':'Admin Privileges Enabled','username':request.user.username})
-        return Response({'error':False,'isAdmin':False,'message':'User Privileges Enabled','username':request.user.username})
+                return Response({'error': False, 'isAdmin': True, 'message': 'Admin Privileges Enabled',
+                                 'username': request.user.username})
+        return Response(
+            {'error': False, 'isAdmin': False, 'message': 'User Privileges Enabled', 'username': request.user.username})
 
-class StudentViewSet(viewsets.GenericViewSet,mixins.RetrieveModelMixin,mixins.ListModelMixin):
+
+class StudentViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin):
     queryset = StudentModel.objects.all()
     serializer_class = StudentModelSerializer
     permission_classes = (IsAuthenticated,)
 
+
 class StudentDiscoverFilterView(generics.ListAPIView):
     queryset = StudentModel.objects.order_by('-id')
     filter_backends = (DjangoFilterBackend,)
-    filter_fields=('year','dept',)
+    filter_fields = ('year', 'dept',)
     serializer_class = StudentModelSerializer
     permission_classes = (IsAuthenticated,)
+
 
 class UpdateProfilePictureView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def post(self,request):
-        data=request.data.dict()
-        serializer=UpdateProfilePictureSerializer(data=data,context={'request':request})
+    def post(self, request):
+        data = request.data.dict()
+        serializer = UpdateProfilePictureSerializer(data=data, context={'request': request})
         if serializer.is_valid(raise_exception=False):
-            student=serializer.save()
-            read_serializer=StudentModelSerializer(student,context={'request':request})
-            return Response({'error':False,'message':'Profile Picture Updated Successfully','object':read_serializer.data})
+            student = serializer.save()
+            read_serializer = StudentModelSerializer(student, context={'request': request})
+            return Response(
+                {'error': False, 'message': 'Profile Picture Updated Successfully', 'object': read_serializer.data})
         else:
             return Response({'error': True, 'message': 'Some Error Occured', 'error_fields': serializer.errors})
-

@@ -1,0 +1,1 @@
+#default_app_config='bppimt_farewell_backend.comment.apps.CommentConfig'

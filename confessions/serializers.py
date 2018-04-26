@@ -33,19 +33,19 @@ class ConfessionsSerializer(serializers.HyperlinkedModelSerializer):
     self_like = serializers.SerializerMethodField(read_only=True)
     all_likes=serializers.SerializerMethodField(read_only=True)
     highlighted_comments=serializers.SerializerMethodField(read_only=True)
-    comments_count=serializers.SerializerMethodField(read_only=True)
-    likes_count=serializers.SerializerMethodField(read_only=True)
+    #comments_count=serializers.SerializerMethodField(read_only=True)
+    #likes_count=serializers.SerializerMethodField(read_only=True)
     tags=serializers.SerializerMethodField(read_only=True)
 
     def get_tags(self,obj):
         request = self.context['request']
         return TagSerializer(obj.tags.all(),context={'request': request},many=True).data
 
-    def get_likes_count(self,obj):
-        return obj.likes.count()
+    # def get_likes_count(self,obj):
+    #     return obj.likes.count()
 
-    def get_comments_count(self,obj):
-        return obj.comments.count()
+    # def get_comments_count(self,obj):
+    #     return obj.comments.count()
 
     def get_highlighted_comments(self,obj):
         request = self.context['request']
@@ -149,6 +149,6 @@ class AddConfessionsSerializer(serializers.Serializer):
         y, sr = librosa.load(resp['new_file_path'])
         confession_clip_duration=librosa.get_duration(y=y,sr=sr)
         confession=Confessions.objects.create(student_id=validated_data['student_id'],description=validated_data['description'],confession_clip_url=resp['file_url'],confession_clip_size=resp['file_size'],confession_clip_duration=math.ceil(confession_clip_duration),is_anonymous=validated_data['is_anonymous'])
-        tags_arr=validated_data['tags'].split(',')
+        tags_arr=validated_data['tags'].lower().split(',')
         confession.tags.add(*tags_arr)
         return confession
