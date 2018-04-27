@@ -18,6 +18,8 @@ class TagViewSet(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveMo
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = None
+    #Removed pagination from this view because the frontend needs a list of all the tags and pagination doesnt make sense for that
 
 class OrderedTagViewSet(viewsets.GenericViewSet,mixins.ListModelMixin):
     queryset = Tag.objects.order_by('tagcount')
