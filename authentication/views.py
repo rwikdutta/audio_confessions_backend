@@ -189,3 +189,11 @@ class UpdateProfilePictureView(APIView):
                 {'error': False, 'message': 'Profile Picture Updated Successfully', 'object': read_serializer.data})
         else:
             return Response({'error': True, 'message': 'Some Error Occured', 'error_fields': serializer.errors})
+
+
+class StudentUnpaginatedViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+    queryset = StudentModel.objects.all()
+    serializer_class = StudentModelSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = None
+

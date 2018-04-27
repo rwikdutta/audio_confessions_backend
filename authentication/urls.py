@@ -1,9 +1,10 @@
 from django.conf.urls import url
-from .views import SignUp,SignIn,SignOut,CheckLogin,CheckAdminLogin,StudentViewSet,UpdateProfilePictureView
+from .views import SignUp,SignIn,SignOut,CheckLogin,CheckAdminLogin,StudentViewSet,UpdateProfilePictureView,StudentUnpaginatedViewSet
 from rest_framework.routers import DefaultRouter
 
 router=DefaultRouter()
 router.register(r'student',StudentViewSet)
+router.register(r'studentfull',StudentUnpaginatedViewSet)
 urlpatterns=router.urls
 urlpatterns.append(url(r'^signup/$',SignUp.as_view()))
 urlpatterns.append(url(r'^signin/$', SignIn.as_view()))
