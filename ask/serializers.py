@@ -1,6 +1,9 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
+
+from authentication.permissions import AdminAccessPermission
+from authentication.serializers import StudentModelSerializer
 from comment.serializers import CommentSerializer
 from hashtags.serializers import TagSerializer
 from likes.models import Likes
@@ -11,6 +14,8 @@ import datetime
 from django.utils.timezone import utc
 
 class AskSerializer(serializers.HyperlinkedModelSerializer):
+    to_student_obj=serializers.SerializerMethodField(read_only=True)
+    from_student_obj = serializers.SerializerMethodField(read_only=True)
     to_student_username=serializers.CharField(source='to_student.user.username')
     content_type_id=serializers.SerializerMethodField(read_only=True)
     object_id=serializers.IntegerField(source='id')
@@ -28,7 +33,15 @@ class AskSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model=Ask
-        fields=('url','question','answer','is_anonymous','from_student','to_student','from_student_username','to_student_username','content_type_id','object_id','can_delete','self_like','all_likes','highlighted_comments','likes_count','tags','created_at','comments_count','can_answer','all_comments','answered_at')
+        fields=('url','question','answer','is_anonymous','from_student','to_student','from_student_username','to_student_username','content_type_id','object_id','can_delete','self_like','all_likes','highlighted_comments','likes_count','tags','created_at','comments_count','can_answer','all_comments','answered_at','to_student_obj','from_student_obj')
+
+    def get_to_student_obj(self,obj):
+        request = self.context['request']
+        return StudentModelSerializer(instance=obj.to_student,context={'request':request}).data
+
+    def get_from_student_obj(self,obj):
+        request = self.context['request']
+        return StudentModelSerializer(instance=obj.from_student, context={'request': request}).data
 
     def get_content_type_id(self,obj):
         return obj.comments.content_type.id
@@ -46,7 +59,7 @@ class AskSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_can_delete(self,obj):
         request=self.context['request']
-        if request.user.id==obj.from_student.user.id:
+        if request.user.id==obj.from_student.user.id or AdminAccessPermission().has_permission(request=request,view=None):
             return True
         return False
 

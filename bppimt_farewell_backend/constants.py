@@ -17,3 +17,6 @@ def get_local_uploaded_files_path():
     if not os.path.isdir(FILE_UPLOAD_DIR):
         os.makedirs(FILE_UPLOAD_DIR)
     return FILE_UPLOAD_DIR
+
+aws_bucket='bpp-user-files'
+aws_folder='v1'

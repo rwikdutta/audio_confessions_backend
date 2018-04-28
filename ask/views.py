@@ -3,6 +3,8 @@ from django.db.models import F
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import mixins,viewsets,views,status,serializers,generics
+
+from authentication.permissions import AdminAccessPermission
 from .models import Ask
 from .serializers import AskSerializer,AnswerAskSerializer,AddAskSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -17,7 +19,7 @@ class AskViewSet(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveMo
             ask_obj=Ask.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             raise serializers.ValidationError({'error':True,'message':'Invalid Object'})
-        if ask_obj.from_student.user.id==request.user.id:
+        if ask_obj.from_student.user.id==request.user.id or AdminAccessPermission().has_permission(request=request,view=self):
             return super().destroy(request, *args, **kwargs)
         raise serializers.ValidationError({'error':True,'message':'No Permission to Delete'})
 

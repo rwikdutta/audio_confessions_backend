@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+
+from authentication.permissions import AdminAccessPermission
 from .serializers import CommentSerializer,AddCommentSerializer
 from django_comments.models import Comment
 from rest_framework import views, viewsets, mixins, permissions, generics, status
@@ -31,9 +33,9 @@ class CommentView(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveM
             user_id_of_obj=Comment.objects.get(id=kwargs['pk']).user.id
         except ObjectDoesNotExist:
             raise ValidationError({'error':True,'message':'Comment doesnt exist'})
-        if not user_id_of_obj==request.user.id:
-            raise ValidationError({'error': True, 'message': 'No Delete Permission'})
-        return super().destroy(request, *args, **kwargs)
+        if user_id_of_obj==request.user.id or AdminAccessPermission().has_permission(request=request,view=self):
+            return super().destroy(request, *args, **kwargs)
+        raise ValidationError({'error': True, 'message': 'No Delete Permission'})
 
 class CommentFilterView(generics.ListAPIView):
     queryset = Comment.objects.filter(is_public=True,is_removed=False).order_by('-id')

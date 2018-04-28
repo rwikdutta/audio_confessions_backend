@@ -1,5 +1,8 @@
 import os
 from django.contrib.contenttypes.models import ContentType
+
+from authentication.permissions import AdminAccessPermission
+from authentication.serializers import StudentModelSerializer
 from hashtags.serializers import TagSerializer
 from comment.serializers import CommentSerializer
 from likes.models import Likes
@@ -36,6 +39,10 @@ class ConfessionsSerializer(serializers.HyperlinkedModelSerializer):
     #comments_count=serializers.SerializerMethodField(read_only=True)
     #likes_count=serializers.SerializerMethodField(read_only=True)
     tags=serializers.SerializerMethodField(read_only=True)
+    student_obj=serializers.SerializerMethodField(read_only=True)
+
+    def get_student_obj(self,obj):
+        return StudentModelSerializer(instance=obj.student,context={'request':self.context['request']}).data
 
     def get_tags(self,obj):
         request = self.context['request']
@@ -76,7 +83,7 @@ class ConfessionsSerializer(serializers.HyperlinkedModelSerializer):
         # The below condition is for testing purposes when i sometimes disable IsAuthenticated check to test it from within the browser
         if not request.user.is_authenticated:
             return False
-        if obj.student.user.id==request.user.id:
+        if obj.student.user.id==request.user.id or AdminAccessPermission().has_permission(request=request,view=None):
             return True
         return False
 

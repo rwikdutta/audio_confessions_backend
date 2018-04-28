@@ -4,6 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from authentication.models import StudentModel
+from authentication.permissions import AdminAccessPermission
 from likes.models import Likes
 from likes.serializers import LikesSerializer
 from .models import Confessions
@@ -13,6 +14,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import serializers
 from django.core.exceptions import ObjectDoesNotExist
+import boto3
+s3=boto3.resource('s3')
+from bppimt_farewell_backend.constants import aws_bucket,aws_folder
+
 # Create your views here.
 
 class ConfessionsViewSet(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
@@ -21,10 +26,15 @@ class ConfessionsViewSet(viewsets.GenericViewSet,mixins.ListModelMixin,mixins.Re
         if not request.user.is_authenticated:
             raise serializers.ValidationError({'error': True, 'message': 'Not Authenticated'})
         try:
-            student_id_of_confession=Confessions.objects.get(pk=kwargs['pk']).student.user.id
+            confession_obj=Confessions.objects.get(pk=kwargs['pk'])
+            student_id_of_confession=confession_obj.student.user.id
         except ObjectDoesNotExist:
-            raise serializers.ValidationError({'error':True,'message':'Deleted Object Does Not Exist'})
-        if request.user.id==student_id_of_confession:
+            raise serializers.ValidationError({'error':True,'message':'Object Does Not Exist'})
+        if request.user.id==student_id_of_confession or AdminAccessPermission().has_permission(request=request,view=self):
+            confession_clip_url=confession_obj.confession_clip_url
+            object_key=confession_clip_url[confession_clip_url.rfind(aws_folder):]
+            bucket = s3.Bucket(aws_bucket)
+            bucket.Object(object_key).Acl().put(ACL='private')
             return super().destroy(request, *args, **kwargs)
         else:
             raise serializers.ValidationError({'error':True,'message':'No Delete Permission'})

@@ -20,8 +20,9 @@ def comment_post_delete_handler(sender,instance,**kwargs):
     #logger.error("Inside comment_post_delete_handler")
     if instance.content_type.model_class() in ALLOWED_MODELS_FOR_LIKE_AND_COMMENT:
         #logger.error("Inside if of comment_post_delete_handler")
-        instance.content_object.comments_count=instance.content_object.comments_count-1
-        instance.content_object.save()
+        if instance.content_object is not None:
+            instance.content_object.comments_count=instance.content_object.comments_count-1
+            instance.content_object.save()
 
 
 

@@ -5,6 +5,9 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.reverse import reverse
+
+from authentication.permissions import AdminAccessPermission
+from authentication.serializers import StudentModelSerializer
 from bppimt_farewell_backend.settings import SITE_ID
 from likes.models import Likes
 
@@ -14,14 +17,19 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
     student_url = serializers.SerializerMethodField(read_only=True)
     can_delete = serializers.SerializerMethodField(read_only=True)
     username=serializers.CharField(source='user.username',read_only=True)
+    student_obj=serializers.SerializerMethodField(read_only=True)
     # TODO: Add a similar url for content-type after ensuring that all the content types have their corresponding views
+
+    def get_student_obj(self,obj):
+        request = self.context['request']
+        return StudentModelSerializer(instance=StudentModel.objects.get(user=obj.user),context={'request':request}).data
 
     def get_can_delete(self, obj):
         request = self.context['request']
         # The below condition is for testing purposes when i sometimes disable IsAuthenticated check to test it from within the browser
         if not request.user.is_authenticated:
             return False
-        if obj.user.id == request.user.id:
+        if obj.user.id == request.user.id or AdminAccessPermission().has_permission(request=request,view=None):
             return True
         return False
 
@@ -32,7 +40,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('url', 'object_pk','comment', 'submit_date','student_url', 'can_delete', 'content_type_id','username')
+        fields = ('url', 'object_pk','comment', 'submit_date','student_url', 'can_delete', 'content_type_id','username','student_obj')
 
 
 class AddCommentSerializer(serializers.Serializer):
