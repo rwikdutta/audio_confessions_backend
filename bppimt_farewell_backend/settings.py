@@ -26,10 +26,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #TODO: Make the secret_key an environment variable
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'a@8n$(=r!fa07s!=hqz415^%le9px-6%hrhtl)zem+xj3j%eu='
+SECRET_KEY = os.environ.get('BPP_FAREWELL_SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('BPP_FAREWELL_DEBUG_MODE', '')=='True'
 
 ALLOWED_HOSTS = ['*']
 
