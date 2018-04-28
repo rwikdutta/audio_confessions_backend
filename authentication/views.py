@@ -197,3 +197,12 @@ class StudentUnpaginatedViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     permission_classes = (IsAuthenticated,)
     pagination_class = None
 
+
+class ServerHealthTest(APIView):
+    """
+        For the load balancer to ping to determine server health
+    """
+
+    def get(self,request):
+        return Response({},status=status.HTTP_200_OK)
+
