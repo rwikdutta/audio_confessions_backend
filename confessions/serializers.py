@@ -156,6 +156,9 @@ class AddConfessionsSerializer(serializers.Serializer):
         y, sr = librosa.load(resp['new_file_path'])
         confession_clip_duration=librosa.get_duration(y=y,sr=sr)
         confession=Confessions.objects.create(student_id=validated_data['student_id'],description=validated_data['description'],confession_clip_url=resp['file_url'],confession_clip_size=resp['file_size'],confession_clip_duration=math.ceil(confession_clip_duration),is_anonymous=validated_data['is_anonymous'])
-        tags_arr=validated_data['tags'].lower().split(',')
+        tags=validated_data['tags']
+        if tags[-1]==',':
+            tags=tags[:-1]
+        tags_arr=tags.lower().split(',')
         confession.tags.add(*tags_arr)
         return confession

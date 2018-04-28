@@ -142,7 +142,10 @@ class AddAskSerializer(serializers.Serializer):
     def create(self, validated_data):
         request=self.context['request']
         from_student=StudentModel.objects.get(user=request.user)
-        tags_arr=validated_data['tags'].lower().split(',')
+        tags=validated_data['tags']
+        if tags[-1]==',':
+            tags=tags[:-1]
+        tags_arr=tags.lower().split(',')
         obj=Ask.objects.create(question=validated_data['question'],is_anonymous=validated_data['is_anonymous'],from_student=from_student,to_student_id=validated_data['to_student_id'])
         obj.tags.add(*tags_arr)
         return obj
