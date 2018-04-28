@@ -206,3 +206,6 @@ TAGGIT_CASE_INSENSITIVE=True
 #         },
 #     },
 # }
+
+# Settings for working with nginx ( Proxy Server )
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
