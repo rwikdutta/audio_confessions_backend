@@ -9,6 +9,7 @@ from rest_framework.reverse import reverse
 from authentication.permissions import AdminAccessPermission
 from authentication.serializers import StudentModelSerializer
 from bppimt_farewell_backend.settings import SITE_ID
+from bppimt_farewell_backend.constants import NUMBER_MAPPING
 from likes.models import Likes
 
 
@@ -16,13 +17,20 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='comment-detail')
     student_url = serializers.SerializerMethodField(read_only=True)
     can_delete = serializers.SerializerMethodField(read_only=True)
-    username=serializers.CharField(source='user.username',read_only=True)
+    #username=serializers.CharField(source='user.username',read_only=True)
+    username=serializers.SerializerMethodField(read_only=True) #Temporary Hack
     student_obj=serializers.SerializerMethodField(read_only=True)
     # TODO: Add a similar url for content-type after ensuring that all the content types have their corresponding views
 
     def get_student_obj(self,obj):
         request = self.context['request']
         return StudentModelSerializer(instance=StudentModel.objects.get(user=obj.user),context={'request':request}).data
+
+    def get_username(self,obj):
+        #Temporary Hack
+        request=self.context['request']
+        student=StudentModel.objects.get(user=obj.user)
+        return "{} {} {} year".format(student.name,student.dept,NUMBER_MAPPING[student.year])
 
     def get_can_delete(self, obj):
         request = self.context['request']

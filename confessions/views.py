@@ -16,7 +16,7 @@ from rest_framework import serializers
 from django.core.exceptions import ObjectDoesNotExist
 import boto3
 s3=boto3.resource('s3')
-from bppimt_farewell_backend.constants import aws_bucket,aws_folder
+from bppimt_farewell_backend.constants import aws_bucket,aws_folder,ANONYMOUS_STUDENT_ID
 
 # Create your views here.
 

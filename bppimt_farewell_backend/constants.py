@@ -2,6 +2,7 @@ from bppimt_farewell_backend.settings import BASE_DIR
 import os
 from ask.models import Ask
 from confessions.models import Confessions
+from authentication.models import StudentModel
 
 # THE FILE TYPE OF CONFESSION AUDIO FILES...RIGHT NOW THIS IS THE ONLY TYPE OF FILE EXTENSION THAT WILL BE ACCEPTED
 CONFESSION_FILE_EXTENSION='.mp3'
@@ -20,3 +21,8 @@ def get_local_uploaded_files_path():
 
 aws_bucket='bpp-user-files'
 aws_folder='v1'
+
+NUMBER_MAPPING={1:'1st',2:'2nd',3:'3rd',4:'4th'} #For a temporary hack
+
+ANONYMOUS_STUDENT_OBJ=StudentModel.objects.get(user__username='anonymous')
+ANONYMOUS_STUDENT_ID=ANONYMOUS_STUDENT_OBJ.id #TEMPORARY HACK

@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
-
+from bppimt_farewell_backend.constants import ANONYMOUS_STUDENT_OBJ #FOR A TEMPORARY HACK
 from authentication.permissions import AdminAccessPermission
 from authentication.serializers import StudentModelSerializer
 from comment.serializers import CommentSerializer
@@ -41,6 +41,8 @@ class AskSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_from_student_obj(self,obj):
         request = self.context['request']
+        if obj.is_anonymous:
+            return StudentModelSerializer(instance=ANONYMOUS_STUDENT_OBJ, context={'request': request}).data
         return StudentModelSerializer(instance=obj.from_student, context={'request': request}).data
 
     def get_content_type_id(self,obj):

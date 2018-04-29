@@ -14,12 +14,13 @@ from authentication.models import StudentModel
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from django.core.exceptions import ObjectDoesNotExist
-from bppimt_farewell_backend.constants import CONFESSION_FILE_EXTENSION,get_local_uploaded_files_path
+from bppimt_farewell_backend.constants import CONFESSION_FILE_EXTENSION,get_local_uploaded_files_path,ANONYMOUS_STUDENT_OBJ
 from shutil import copyfile
 import boto3
 from django.core import exceptions
 import librosa
 import math
+
 
 FILE_UPLOAD_DIR=get_local_uploaded_files_path()
 
@@ -42,6 +43,9 @@ class ConfessionsSerializer(serializers.HyperlinkedModelSerializer):
     student_obj=serializers.SerializerMethodField(read_only=True)
 
     def get_student_obj(self,obj):
+        #TEMPORARY HACK
+        if obj.is_anonymous:
+            return StudentModelSerializer(instance=ANONYMOUS_STUDENT_OBJ,context={'request':self.context['request']}).data
         return StudentModelSerializer(instance=obj.student,context={'request':self.context['request']}).data
 
     def get_tags(self,obj):

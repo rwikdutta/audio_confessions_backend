@@ -10,6 +10,9 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets, mixins, generics
+from bppimt_farewell_backend.constants import ANONYMOUS_STUDENT_ID
+
+
 
 
 # Create your views here.
@@ -163,13 +166,13 @@ class CheckAdminLogin(APIView):
 
 
 class StudentViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin):
-    queryset = StudentModel.objects.all()
+    queryset = StudentModel.objects.exclude(id=ANONYMOUS_STUDENT_ID)
     serializer_class = StudentModelSerializer
     permission_classes = (IsAuthenticated,)
 
 
 class StudentDiscoverFilterView(generics.ListAPIView):
-    queryset = StudentModel.objects.order_by('-id')
+    queryset = StudentModel.objects.exclude(id=ANONYMOUS_STUDENT_ID).order_by('-id')
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('year', 'dept',)
     serializer_class = StudentModelSerializer
@@ -192,7 +195,7 @@ class UpdateProfilePictureView(APIView):
 
 
 class StudentUnpaginatedViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-    queryset = StudentModel.objects.all()
+    queryset = StudentModel.objects.exclude(id=ANONYMOUS_STUDENT_ID)
     serializer_class = StudentModelSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = None
