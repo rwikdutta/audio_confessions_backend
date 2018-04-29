@@ -60,7 +60,7 @@ class SignUpSerializer(serializers.Serializer):
         raise serializers.ValidationError("Email Exists")
 
     def validate(self, attrs):
-        if attrs['dept']=='MCA' and (attrs['year']<1 or attrs['year']>2):
+        if attrs['dept']=='MCA' and (attrs['year']<1 or attrs['year']>3):
             raise serializers.ValidationError({"year":"Year Invalid For MCA"})
 
         user=User(attrs['username'],attrs['email'],attrs['password'])
