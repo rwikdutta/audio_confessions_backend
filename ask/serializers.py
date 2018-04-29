@@ -127,7 +127,7 @@ class AddAskSerializer(serializers.Serializer):
     question=serializers.CharField(max_length=3000,allow_blank=False,allow_null=False)
     is_anonymous=serializers.BooleanField(default=False)
     to_student_id=serializers.IntegerField(allow_null=False)
-    tags=serializers.CharField(max_length=3000)
+    tags=serializers.CharField(max_length=3000,allow_null=True,allow_blank=True)
 
     def validate(self, attrs):
         request=self.context['request']
