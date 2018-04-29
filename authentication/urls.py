@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from .views import SignUp,SignIn,SignOut,CheckLogin,CheckAdminLogin,StudentViewSet,UpdateProfilePictureView,StudentUnpaginatedViewSet,ServerHealthTest
+from .views import SignUp,SignIn,SignOut,CheckLogin,CheckAdminLogin,StudentViewSet,UpdateProfilePictureView,StudentUnpaginatedViewSet,ServerHealthTest,StudentOwnProfile
 from rest_framework.routers import DefaultRouter
 
 router=DefaultRouter()
@@ -13,3 +13,4 @@ urlpatterns.append(url(r'^checklogin/$', CheckLogin.as_view()))
 urlpatterns.append(url(r'^checkadmin/$',CheckAdminLogin.as_view()))
 urlpatterns.append(url(r'^updateprofilepicture/$',UpdateProfilePictureView.as_view()))
 urlpatterns.append(url(r'^health/$',ServerHealthTest.as_view()))
+urlpatterns.append(url(r'^ownprofile/$',StudentOwnProfile.as_view()))

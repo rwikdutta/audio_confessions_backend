@@ -197,6 +197,9 @@ class StudentUnpaginatedViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     permission_classes = (IsAuthenticated,)
     pagination_class = None
 
+    def get_queryset(self):
+        return super().get_queryset().exclude(user_id=self.request.user.id)
+
 
 class ServerHealthTest(APIView):
     """
@@ -206,3 +209,9 @@ class ServerHealthTest(APIView):
     def get(self,request):
         return Response({},status=status.HTTP_200_OK)
 
+class StudentOwnProfile(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self,request):
+        student_obj=StudentModel.objects.get(user=self.request.user)
+        return Response(StudentModelSerializer(instance=student_obj,context={'request':request}).data)
