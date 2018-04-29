@@ -42,6 +42,8 @@ class ConfessionsSerializer(serializers.HyperlinkedModelSerializer):
     student_obj=serializers.SerializerMethodField(read_only=True)
 
     def get_student_obj(self,obj):
+        if obj.is_anonymous:
+            return None
         return StudentModelSerializer(instance=obj.student,context={'request':self.context['request']}).data
 
     def get_tags(self,obj):

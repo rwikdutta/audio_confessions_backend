@@ -41,6 +41,8 @@ class AskSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_from_student_obj(self,obj):
         request = self.context['request']
+        if obj.is_anonymous:
+            return None
         return StudentModelSerializer(instance=obj.from_student, context={'request': request}).data
 
     def get_content_type_id(self,obj):
