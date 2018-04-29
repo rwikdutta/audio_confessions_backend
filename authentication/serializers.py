@@ -20,7 +20,7 @@ class SignUpSerializer(serializers.Serializer):
     name=serializers.CharField(max_length=256,allow_null=False)
     year=serializers.DecimalField(max_digits=1,decimal_places=0,allow_null=False)
     dept=serializers.CharField(max_length=3,allow_null=False)
-    passout_year=serializers.DecimalField(max_digits=4,decimal_places=0,allow_null=False)
+    passout_year=serializers.DecimalField(max_digits=4,decimal_places=0,allow_null=True,default=2019) #temp_hack
     username=serializers.CharField(max_length=128,allow_null=False)
     password=serializers.CharField(max_length=128,allow_null=False)
     email=serializers.EmailField(allow_null=False)
