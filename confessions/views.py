@@ -62,6 +62,7 @@ class AddConfessionView(views.APIView):
     def post(self,request):
         request_data=request.data.dict()
         request_data['student_id']=StudentModel.objects.get(user=request.user).id
+        request_data['tags']=request_data.get('tags','') # Hack
         serializer=AddConfessionsSerializer(data=request_data,context=request)
         if serializer.is_valid(raise_exception=False):
             confession=serializer.save()

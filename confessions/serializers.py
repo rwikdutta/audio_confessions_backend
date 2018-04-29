@@ -118,6 +118,7 @@ class AddConfessionsSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         try:
+            #logger.error(attrs)
             StudentModel.objects.get(id=attrs['student_id'])
         except ObjectDoesNotExist:
             raise exceptions.ValidationError({"student_id":"Student object doesnt exist"})
