@@ -106,8 +106,7 @@ WSGI_APPLICATION = 'bppimt_farewell_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        #'NAME': os.environ.get('BPP_FAREWELL_DB_NAME', ''),
-        'NAME': 'farewell_django_db_v2',
+        'NAME': os.environ.get('BPP_FAREWELL_DB_NAME', ''),
         'USER': os.environ.get('BPP_FAREWELL_DB_USERNAME', ''),
         'PASSWORD': os.environ.get('BPP_FAREWELL_DB_PASSWORD', ''),
         'HOST': os.environ.get('BPP_FAREWELL_DB_HOST', ''),
