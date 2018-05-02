@@ -116,7 +116,7 @@ class AddConfessionsSerializer(serializers.Serializer):
 
     student_id=serializers.IntegerField(allow_null=False)
     datafile=serializers.FileField()
-    description=serializers.CharField(max_length=256,allow_null=True,allow_blank=True)
+    description=serializers.CharField(max_length=3000,allow_null=True,allow_blank=True)
     is_anonymous=serializers.BooleanField(default=False)
     tags=serializers.CharField(max_length=2048,allow_null=True,allow_blank=True)
 

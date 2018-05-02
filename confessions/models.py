@@ -12,7 +12,7 @@ class Confessions(models.Model):
     modified_at=models.DateTimeField(auto_now=True)
     student=models.ForeignKey(StudentModel,on_delete=models.DO_NOTHING,null=False)
     confession_clip_url=models.URLField(max_length=256,null=False)
-    description=models.CharField(max_length=256,null=True,blank=True)
+    description=models.CharField(max_length=3000,null=True,blank=True)
     is_approved=models.BooleanField(default=True)
     is_anonymous=models.BooleanField(default=False)
     confession_clip_size=models.IntegerField(null=False)

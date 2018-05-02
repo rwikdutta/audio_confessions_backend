@@ -72,11 +72,15 @@ class AddConfessionView(views.APIView):
             return Response({'error':True,'message':'Error Occured','error_fields':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
 
 class ConfessionStudentFilterView(generics.ListAPIView):
+
     queryset = Confessions.objects.filter(is_anonymous=False,is_approved=True).order_by('-id')
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('student__id',)
     serializer_class = ConfessionsSerializer
     permission_classes = (IsAuthenticated,)
+
+
+
 
 class OrderedConfessionsViewSet(viewsets.GenericViewSet,mixins.ListModelMixin):
     queryset = Confessions.objects.filter(is_approved=True).order_by((F('likes_count')+F('comments_count')).desc(),'-id')

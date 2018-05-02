@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'django_comments',
     'comment.apps.CommentConfig',
     'hashtags.apps.HashtagsConfig',
+    'fcm_django',
+    'notifications',
 ]
 
 REST_FRAMEWORK = {
@@ -209,3 +211,8 @@ TAGGIT_CASE_INSENSITIVE=True
 
 # Settings for working with nginx ( Proxy Server )
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+#FCM_DJANGO_SETTINGS
+# FCM_DJANGO_SETTINGS = {
+#         "FCM_SERVER_KEY": "[your api key]"
+# }
