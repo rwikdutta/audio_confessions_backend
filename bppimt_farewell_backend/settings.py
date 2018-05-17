@@ -213,6 +213,11 @@ TAGGIT_CASE_INSENSITIVE=True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 #FCM_DJANGO_SETTINGS
-# FCM_DJANGO_SETTINGS = {
-#         "FCM_SERVER_KEY": "[your api key]"
-# }
+FCM_DJANGO_SETTINGS = {
+        "FCM_SERVER_KEY": os.environ.get('BPP_FAREWELL_FIREBASE_SERVER_KEY',''),
+        "ONE_DEVICE_PER_USER": False,
+         # devices to which notifications cannot be sent,
+         # are deleted upon receiving error response from FCM
+         # default: False
+        "DELETE_INACTIVE_DEVICES": False,
+}

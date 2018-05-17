@@ -25,7 +25,7 @@ class StudentModel(models.Model):
         (2020, 2020),
         (2021, 2021),
         (2022, 2022),
-    ),blank=True,null=True,default=2019) #temp hack
+    ),blank=True,null=True,default=2019) #temp_hack...at the last moment it was decided not to take this information from the user, so it's always now filled in with a dummy value ( 2019 )
     user=models.OneToOneField(User,on_delete=models.CASCADE)
     is_admin=models.BooleanField(default=False,null=False,blank=False)
     profile_picture_large_url=models.URLField(null=True,blank=True)
