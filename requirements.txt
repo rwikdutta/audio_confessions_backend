@@ -19,7 +19,7 @@ docutils==0.14
 fcm-django==0.2.18
 idna==2.6
 jmespath==0.9.3
-joblib==0.11
+joblib==1.2.0
 kombu==4.1.0
 librosa==0.6.0
 llvmlite==0.22.0
